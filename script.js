@@ -33,7 +33,7 @@ function displayInDom() {
         // console.log(element, index)
         show +=
             `<div id="" class="card" style="width: fit-content;">
-            <div id="noteCard" class="card my-2 mx-2" style="width: fit-content;">
+            <div draggable="true" id="noteCard" class="card my-2 mx-2" style="width: fit-content;">
                  <div class="dropdown position-absolute top-0 end-0">
                      <button class="btn btn-primary " type="button" data-bs-toggle="dropdown" aria-expanded="false">
                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
@@ -148,7 +148,69 @@ document.addEventListener("click", function (e) {
 })
 
 
-// Fn to apply
+
+// drag and drop
+let tempTitel = ""
+let tempDesc = ""
+document.addEventListener("dragstart", (e) => {
+    if (e.target.id === 'noteCard') {
+        // console.log("dragstart")
+        e.target.classList.add("bg-warning");
+        // console.log(e.target.querySelector("#titleDisplay"))
+        // console.log(e.target.querySelector("#descDisplay"))
+        tempTitel = e.target.querySelector("#titleDisplay").textContent
+        tempDesc = e.target.querySelector("#descDisplay").textContent
+        // console.log(e.target.querySelector("#deleteThis"))
+    }
+})
+document.addEventListener("dragend", (e) => {
+    if (e.target.id === 'noteCard') {
+        // console.log("dragend is triggerd");
+        e.target.classList.remove("bg-warning");
+        if (tempHEAD !== "" && tempaPARA != "") {
+            e.target.querySelector('h5').textContent = tempHEAD
+            e.target.querySelector('p').textContent = tempaPARA
+        }
+    }
+})
+let tempHEAD = "";
+let tempaPARA = "";
+
+// const elem = document.querySelectorAll("#showinDOM")
+const elem = document.querySelectorAll("#white")
+elem.forEach((element) => {
+
+    element.addEventListener("dragover", (e) => {
+        // console.log("dragOver is triggred");
+        e.preventDefault();
+    })
+    element.addEventListener("dragenter", (e) => {
+        // console.log("draEnter is triggred");
+        e.target.classList.add("bg-danger");
+    })
+    element.addEventListener("dragleave", (e) => {
+        // console.log("dragLeave is triggred");
+        e.target.classList.remove("bg-danger");
+
+    })
+    element.addEventListener("drop", (e) => {
+        // console.log(e.target.querySelector("#titleDisplay"))
+        // console.log(e.target.querySelector("#descDisplay"))
+
+        if (e.target.querySelector('h5') && e.target.querySelector('p')) {
+            tempHEAD = e.target.querySelector("h5").textContent
+            tempaPARA = e.target.querySelector("p").textContent
+
+            console.log("drop is triggred");
+
+            e.target.querySelector("#titleDisplay").textContent = tempTitel
+            e.target.querySelector("#descDisplay").textContent = tempDesc
+            e.target.classList.remove("bg-danger");
+            // console.log(e.target.querySelector("#deleteThis")
+        }
+    })
+})
+
 // search
 // delete all notes
-// drag and drop
+// priority based
