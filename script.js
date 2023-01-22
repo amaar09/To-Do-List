@@ -1,14 +1,13 @@
 // get element from html 
-
 const titleInput = document.querySelector("#titleInput")
 const descInput = document.querySelector("#descInput")
-
 const showinDOM = document.querySelector("#showinDOM")
 const addBtn = document.querySelector("#addBtn")
+// calling Fn at the start of program execution
 checkInlocalStorage()
 displayInDom()
 
-// check onjects in localStorage
+// check objects in localStorage
 function checkInlocalStorage() {
     let notes = localStorage.getItem("notes");
     if (notes == null) {
@@ -33,16 +32,15 @@ function displayInDom() {
         // console.log(element, index)
         show +=
             `<div id="" class="card" style="width: fit-content;">
-            <div draggable="true" id="noteCard" class="card my-2 mx-2" style="width: fit-content;">
+            <div draggable="true" id="noteCard" class="card my-2" style="width: 100%;">
                  <div class="dropdown position-absolute top-0 end-0">
-                     <button class="btn btn-primary " type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                     <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-                     </svg>
+                     <button class="btn"  type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                        </svg>
                      </button>
                      <ul class="dropdown-menu">
                          <li><button class="dropdown-item" value="${index}" id="edit" href="#">Edit</button></li>
-                         <li><button class="dropdown-item"  href="#">Details </button></li>
                      </ul>
                  </div>
                 <div class="card-body" id="white">
@@ -53,7 +51,6 @@ function displayInDom() {
                 </div>
              </div>`
     })
-    // console.log(show)
     showinDOM.innerHTML = show
     // titleInput.value = ""
     // descInput.value = ""
@@ -150,8 +147,13 @@ document.addEventListener("click", function (e) {
 
 
 // drag and drop
-let tempTitel = ""
-let tempDesc = ""
+let tempTitel = "";
+let tempDesc = "";
+let tempHEAD = "";
+let tempaPARA = "";
+let pickedElm = "";
+let placedInElm = "";
+
 document.addEventListener("dragstart", (e) => {
     if (e.target.id === 'noteCard') {
         // console.log("dragstart")
@@ -160,7 +162,9 @@ document.addEventListener("dragstart", (e) => {
         // console.log(e.target.querySelector("#descDisplay"))
         tempTitel = e.target.querySelector("#titleDisplay").textContent
         tempDesc = e.target.querySelector("#descDisplay").textContent
-        // console.log(e.target.querySelector("#deleteThis"))
+        // console.log(e.target.querySelector("#deleteThis").value)
+        // console.log(e.target.querySelector("#deleteThis").value)
+        pickedElm = e.target.querySelector("#deleteThis").value
     }
 })
 document.addEventListener("dragend", (e) => {
@@ -170,11 +174,10 @@ document.addEventListener("dragend", (e) => {
         if (tempHEAD !== "" && tempaPARA != "") {
             e.target.querySelector('h5').textContent = tempHEAD
             e.target.querySelector('p').textContent = tempaPARA
+            updateSwapInLocalStorage()
         }
     }
 })
-let tempHEAD = "";
-let tempaPARA = "";
 
 // const elem = document.querySelectorAll("#showinDOM")
 const elem = document.querySelectorAll("#white")
@@ -186,7 +189,10 @@ elem.forEach((element) => {
     })
     element.addEventListener("dragenter", (e) => {
         // console.log("draEnter is triggred");
-        e.target.classList.add("bg-danger");
+        if (e.target.querySelector('h5') && e.target.querySelector('p')) {
+            e.target.classList.add("bg-danger");
+
+        }
     })
     element.addEventListener("dragleave", (e) => {
         // console.log("dragLeave is triggred");
@@ -201,16 +207,64 @@ elem.forEach((element) => {
             tempHEAD = e.target.querySelector("h5").textContent
             tempaPARA = e.target.querySelector("p").textContent
 
-            console.log("drop is triggred");
+            // console.log("drop is triggred");
 
             e.target.querySelector("#titleDisplay").textContent = tempTitel
             e.target.querySelector("#descDisplay").textContent = tempDesc
             e.target.classList.remove("bg-danger");
             // console.log(e.target.querySelector("#deleteThis")
+            // console.log(e.target.querySelector("#deleteThis").value)
+            placedInElm = e.target.querySelector("#deleteThis").value
+
         }
     })
 })
 
+function updateSwapInLocalStorage() {
+    let notes = localStorage.getItem("notes");
+    if (notes == null) {
+        notesObj = [];
+    } else {
+        notesObj = JSON.parse(notes);
+    }
+    let temp = notesObj[pickedElm];
+    notesObj[pickedElm] = notesObj[placedInElm]
+    notesObj[placedInElm] = temp;
+    localStorage.setItem("notes", JSON.stringify(notesObj));
+    // displayInDom();
+}
+
+
 // search
+const searchTxt = document.querySelector("#searchTxt")
+const searchBtn = document.querySelector("#searchBtn")
+searchBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (searchTxt.value !== "") {
+        // console.log(searchTxt.value)
+        let upperCaseTxt = searchTxt.value.toUpperCase()
+        let lowerCaseTxt = searchTxt.value.toLowerCase()
+        const titleDisplay = document.querySelectorAll("#titleDisplay")
+        const descDisplay = document.querySelectorAll("#descDisplay")
+        // search in title
+        titleDisplay.forEach(element => {
+            if (element.textContent.includes(upperCaseTxt) || element.textContent.includes(lowerCaseTxt)) {
+                element.style.backgroundColor = "yellow"
+            } else {
+                element.style.backgroundColor = "white"
+            }
+        });
+        // search in description
+        descDisplay.forEach(element => {
+            if (element.textContent.includes(upperCaseTxt) || element.textContent.includes(lowerCaseTxt)) {
+                element.style.backgroundColor = "yellow"
+            } else {
+                element.style.backgroundColor = "white"
+            }
+        });
+    }
+})
+
 // delete all notes
-// priority based
+// light and dark themes
+// About page
